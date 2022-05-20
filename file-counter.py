@@ -1,20 +1,13 @@
-# write a script that locates your Desktop
-
-import pathlib
-import pprint
+from pathlib import Path
 import csv
 
-desktop = pathlib.Path('/home/joe/Desktop')
+desktop = Path('/home/joe/Desktop')
 
-text_folder = pathlib.Path('/home/joe/Desktop/textfolder')
-jpg_folder = pathlib.Path('/home/joe/Desktop/jpgfolder')
+text_folder = Path('/home/joe/Desktop/textfolder')
+jpg_folder = Path('/home/joe/Desktop/jpgfolder')
 
-# fetches all the files that are on there, 
-# and counts how many files of each different file type are on your desktop. 
-# Use a dictionary to collect this data, 
-
-file_dict = {'' : 0, 'txt' : 0, 'jpg' : 0}
-
+file_dict = {'' : 0, 'txt' : 0, 'jpg' : 0, 'png' : 0, 'md' : 0, 'csv' : 0}
+csv_header = ['FILES', 'TXT', 'JPG', 'PNG', 'MD', 'CSV']
 
 for filepath in desktop.iterdir():
 
@@ -29,8 +22,7 @@ for filepath in desktop.iterdir():
             new_text_path = text_folder.joinpath(filepath.name)
             filepath.replace(new_text_path)
 
-
-    elif filepath.suffix == '.jpg':
+    if filepath.suffix == '.jpg':
         file_dict['jpg'] += 1
 
         if file_dict['jpg'] > 3:
@@ -38,19 +30,25 @@ for filepath in desktop.iterdir():
             new_jpg_path = jpg_folder.joinpath(filepath.name)
             filepath.replace(new_jpg_path)
 
-with open('output.txt', 'a') as file_out:
-    file_out.write(str(file_dict))
-    file_out.write('\n')
-    
-# and print it to your console at the end in order to get an overview of what is there.
-pprint.pprint(file_dict, indent=4)
+    if filepath.suffix == '.png':
+        file_dict['png'] += 1
 
-with open('output.txt', 'r') as file_in:
-    print(file_in.read())
+    if filepath.suffix == '.md':
+        file_dict['md'] += 1
 
-counts = {"": 8, ".csv": 2, ".md": 2, ".png": 11}
+    elif filepath.suffix == '.csv':
+        file_dict['csv'] += 1
 
-with open("filecounts.csv", "a") as csvfile:
-    file_dict_writer = csv.writer(csvfile)
-    data = [file_dict[''], file_dict['txt'], file_dict['jpg']]
-    file_dict_writer.writerow(data) 
+
+with open(desktop.joinpath('filescount.csv'), 'a') as csvfile:
+    row_writer = csv.writer(csvfile)
+
+    # Tests for Header row. 
+    tester = open(desktop.joinpath('filescount.csv'), 'r')
+    test_line = tester.readline()
+    if csv_header[0] not in test_line: 
+        row_writer.writerow(csv_header)
+    tester.close()
+
+    data = [file_dict[''], file_dict['txt'], file_dict['jpg'], file_dict['png'], file_dict['md'], file_dict['csv']]
+    row_writer.writerow(data)
