@@ -1,5 +1,3 @@
-# Import pathlib
-# Find the path to my Desktop
 # List all the files on there
 # Filter for screenshots only
 # Create a new folder
